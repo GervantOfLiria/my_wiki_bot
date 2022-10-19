@@ -1,0 +1,89 @@
+import telebot
+from telebot import types
+import wiki_scrap
+
+token = '5685583956:AAF3wOZYed3apulBq_xKPKXW73VbiWfdSVE'
+bot = telebot.TeleBot(token)
+
+
+@bot.message_handler(commands=['start'])
+def start_message(message):
+    bot.send_message(message.chat.id, 'Привет, напиши мне страну')
+
+
+@bot.message_handler(content_types=['text'])
+def text_handler(message):
+    bot.send_message(message.chat.id, '5 сек')
+    try:
+        state = wiki_scrap.Country(message.text)
+    except:
+        bot.send_message(message.chat.id, 'Что-то пошло не так, трай эгэн')
+        return 0
+    if state.error:
+        bot.send_message(message.chat.id, 'Такой страны не знаю')
+        return 0
+
+    def reply(mess):
+        match mess.text:
+            case 'Перевыбрать страну':
+                bot.send_message(message.chat.id, 'О какой стране тогда рассказать?')
+                return 0
+            case 'ВВП':
+                bot.send_message(message.chat.id, wiki_scrap.wiki_destyle(state.gdp))
+            case 'Религия':
+                bot.send_message(message.chat.id, wiki_scrap.wiki_destyle(state.faith))
+            case "Президент":
+                bot.send_message(message.chat.id, wiki_scrap.wiki_destyle(state.pres))
+            case 'Флаг':
+                bot.send_photo(message.chat.id, wiki_scrap.wiki_destyle(state.flag))
+            case 'Нац. состав':
+                bot.send_message(message.chat.id, wiki_scrap.wiki_destyle(state.natio))
+            case 'Гимн':
+                bot.send_audio(message.chat.id, wiki_scrap.wiki_destyle(state.anthem))
+            case 'Население':
+                bot.send_message(message.chat.id, wiki_scrap.wiki_destyle(state.population))
+            case 'Столица':
+                bot.send_message(message.chat.id, wiki_scrap.wiki_destyle(state.capital))
+            case 'Форма правления':
+                bot.send_message(message.chat.id, wiki_scrap.wiki_destyle(state.govern))
+            case 'ИЧР':
+                bot.send_message(message.chat.id, wiki_scrap.wiki_destyle(state.ichr))
+            case 'Язык':
+                bot.send_message(message.chat.id, wiki_scrap.wiki_destyle(state.language))
+            case 'Граждане':
+                bot.send_message(message.chat.id, wiki_scrap.wiki_destyle(state.citizen))
+            case 'Телефонный код':
+                bot.send_message(message.chat.id, wiki_scrap.wiki_destyle(state.code))
+            case 'Интернет-домен':
+                bot.send_message(message.chat.id, wiki_scrap.wiki_destyle(state.domen))
+            case 'Валюта':
+                bot.send_message(message.chat.id, wiki_scrap.wiki_destyle(state.usd))
+        bot.register_next_step_handler(mess, reply)
+        return 0
+
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    item1 = types.KeyboardButton("Перевыбрать страну")
+    item2 = types.KeyboardButton("ВВП")
+    item3 = types.KeyboardButton("Религия")
+    item4 = types.KeyboardButton("Президент")
+    item5 = types.KeyboardButton("Флаг")
+    item6 = types.KeyboardButton("Национальный состав")
+    item7 = types.KeyboardButton("Гимн")
+    item8 = types.KeyboardButton("Население")
+    item9 = types.KeyboardButton("Столица")
+    item10 = types.KeyboardButton("ИЧР")
+    item11 = types.KeyboardButton("Язык")
+    item12 = types.KeyboardButton("Граждане")
+    item13 = types.KeyboardButton("Телефонный код")
+    item14 = types.KeyboardButton("Интернет-домен")
+    item15 = types.KeyboardButton("Валюта")
+    item16 = types.KeyboardButton("Форма правления")
+    markup.add(
+        item1, item3, item2, item4, item5, item6, item7, item8, item9, item10,
+        item11, item12, item13, item14, item15, item16
+    )
+    msg = bot.send_message(message.chat.id, 'Выберите что вам интересно', reply_markup=markup)
+    bot.register_next_step_handler(msg, reply)
+
+
+bot.infinity_polling()
