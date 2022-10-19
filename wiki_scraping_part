@@ -1,0 +1,168 @@
+import requests
+from bs4 import BeautifulSoup
+#a list of countries to check the requested info
+check_list = ['Англия', 'США', 'СоединённыеШтатыАмерики', 'Австралия', 'Австрия', 'Азербайджан', 'Албания',
+              'Алжир', 'Ам.Виргинскиеострова', 'ОбъединённыеАрабскиеЭмираты',
+              'АмериканскоеСамоа', 'Ангола', 'Андорра', 'АнтигуаиБарбуда', 'Аргентина', 'Армения', 'Аруба',
+              'Афганистан', 'Багамы', 'Бангладеш', 'Барбадос', 'Бахрейн', 'Белиз', 'Белоруссия', 'Бельгия', 'Бенин',
+              'БермудскиеОстрова', 'Болгария', 'Боливия', 'Бонэйр', 'БоснияиГерцеговина', 'Ботсвана', 'Бразилия',
+              'Бр.Виргинскиеострова', 'Бруней', 'Буркина-Фасо', 'Бурунди', 'Бутан', 'Вануату', 'Ватикан',
+              'Великобритания', 'Венгрия', 'Венесуэла', 'ВосточныйТимор', 'Вьетнам', 'Габон', 'Гаити', 'Гайана',
+              'Гамбия', 'Гана', 'Гватемала', 'Гвинея', 'Гвинея-Бисау', 'Германия', 'Гондурас', 'Гонконг', 'Гренада',
+              'Греция', 'Грузия', 'Дания', 'Д.Р.Конго', 'Джерси', 'Джибути', 'Доминика', 'Доминикана', 'Египет',
+              'Замбия', 'Зимбабве', 'Израиль', 'Индия', 'Индонезия', 'Иордания', 'Ирак', 'Иран', 'Ирландия',
+              'Исландия', 'Испания', 'Италия', 'Йемен', 'Кабо-Верде', 'Казахстан', 'Камбоджа', 'Камерун', 'Канада',
+              'Катар', 'Кения', 'Кипр', 'Киргизия', 'Кирибати', 'Китай', 'Колумбия', 'Кокосовыеострова',
+              'КоморскиеОстрова', 'Конго', 'КНДР', 'Корея', 'Коста-Рика', 'Кот-д\'Ивуар', 'Куба', 'Кувейт', 'Кюрасао',
+              'Лаос', 'Латвия', 'Лесото', 'Либерия', 'Ливан', 'Ливия', 'Литва', 'Лихтенштейн', 'Люксембург',
+              'Маврикий', 'Мавритания', 'Мадагаскар', 'Македония', 'Малави', 'Малайзия', 'Мали', 'Мальта', 'Мальдивы',
+              'Марокко', 'МаршалловыОстрова', 'Мексика', 'Мозамбик', 'Молдавия(Молдова)', 'Монако', 'Монголия',
+              'Мьянма', 'Намибия', 'Науру', 'Непал', 'Нигер', 'Нигерия', 'Нидерланды', 'Никарагуа', 'НоваяЗеландия',
+              'Норвегия', 'ОАЭ', 'Оман', 'ОстроваКукаП', 'Пакистан', 'Палау', 'Панама', 'Папуа-НоваяГвинея',
+              'Парагвай', 'Перу', 'Пуэрто-Рико', 'Польша', 'Португалия', 'Россия', 'Руанда', 'Румыния', 'Саба',
+              'Сальвадор', 'Самоа', 'Сан-Марино', 'Сан-ТомеиПринсипи', 'СаудовскаяАравия', 'Свазиленд', 'Сейшелы',
+              'Сенегал', 'Сент-ВинсентиГренадины', 'Сент-КитсиНевис', 'Сент-Люсия', 'Сен-Мартен', 'Сербия',
+              'Сингапур', 'Синт-Эстатиус', 'Сирия', 'Словакия', 'Словения', 'США', 'СоломоновыОстрова', 'Сомали',
+              'Судан', 'Суринам', 'Сьерра-Леоне', 'Таджикистан', 'Таиланд', 'Танзания', 'Того', 'Токелау', 'Тонга',
+              'ТринидадиТобаго', 'Тувалу', 'Тунис', 'Туркменистан', 'Турция', 'Уганда', 'Узбекистан', 'Украина',
+              'УоллисиФутуна', 'Уругвай', 'Фарерскиеострова', 'Фед.ШтатыМикронезии', 'Фиджи', 'Филиппины',
+              'Финляндия', 'Фолклендскиеострова', 'Франция', 'ФранцузскаяПолинезия', 'Хорватия', 'ЦАР', 'Чад',
+              'Черногория', 'Чехия', 'Чили', 'Швейцария', 'Швеция', 'Шри-Ланка', 'Эквадор', 'ЭкваториальнаяГвинея',
+              'Эритрея', 'Эстония', 'Эфиопия', 'ЮАР', 'ЮжныйСудан', 'Ямайка', 'Япония']
+path = r'C:\Users\Dell\Desktop\Temp\Bott.html'
+
+
+def find_url(wish):
+    url = 'https://ru.wikipedia.org/w/index.php?go=%D0%9F%D0%B5%D1%80%D0%B5%D0%B9%D1%82%D0%B8&search=' + wish
+    r = requests.get(url)
+    if r.url[26] == 'i':
+        return r.url
+    else:
+        soup = BeautifulSoup(r.text, 'lxml')
+        return 'https://ru.wikipedia.org/' + soup.find('div', {'class': "mw-search-result-heading"}).find('a')['href']
+
+#I actually didn't use it nut I'm not in the mood to develop the bot further yet
+class Human:
+    def __init__(self, text):
+        self.name = text
+        self.url = find_url(self.name)
+        r = requests.get(self.url)
+        self.soup = BeautifulSoup(r.text, 'lxml')
+        tr = self.soup.find_all('tr')
+        birth = 0
+        position = 0
+        for i in range(len(tr)):
+            try:
+                if tr[i].find('th').get_text() == 'Рождение':
+                    birth = i
+                    break
+                if tr[i].find('div', {'class': 'ts-Государственный_деятель-Должность-header'}):
+                    position = i
+            except:
+                pass
+        self.birth = tr[birth].find('td').get_text()
+        self.position = tr[position].find('div', {'class': 'label'}).find('a').get_text()
+
+
+class Country:
+    def get_anthem(self):
+        anthem_wiki = find_url('гимн+' + self.name)
+        r = requests.get(anthem_wiki)
+        soup = BeautifulSoup(r.text, 'lxml')
+        try:
+            result = 'https:' + soup.find('audio').find('source')['src']
+        except AttributeError:
+            result = 'Хз че за гимн у них'
+        return result
+
+    def __init__(self, text):
+        self.url = find_url(text)
+        r = requests.get(self.url)
+        self.soup = BeautifulSoup(r.text, 'lxml')
+        self.name = self.soup.find('span', {'class': 'mw-page-title-main'}).get_text()
+        if self.name.replace(' ', '') in check_list:
+            self.error = False
+            self.map = 'https:' + self.soup.find('img', {'width': '300' or '299'})['src']
+            self.flag = 'https:' + self.soup.find('td', {'style': 'vertical-align: middle'}).find('img')['src']
+            self.anthem = self.get_anthem()
+            try:
+                self.natio = self.soup.find('th', string='Национальность').parent.parent.find_all('td')
+                result = ''
+                for row in self.natio:
+                    result += row.get_text() + ' '
+                natio = result.replace('\xa0', '').split('\n')
+                natio = natio[:len(natio) - 2]
+                self.natio = ''
+                for nat in natio:
+                    self.natio += nat.split('%')[0] + '%, \n'
+            except:
+                self.natio = 'В вики не расписан национальный состав этой страны'
+            tr = self.soup.find_all('tr')
+            self.pres = 'Нет президента'
+            self.faith = 'Не знаю религию там'
+            self.citizen = 'Хз как их там называют'
+            self.gdp = 'Хз какой ввп'
+            self.ichr = 'Хз насчет ИЧР там'
+            self.domen = 'Ара какой интернет'
+            for i in range(len(tr)):
+                try:
+                    if tr[i].find('a').get_text() == 'Президент':
+                        pres = i
+                        self.pres = tr[pres].find('td').get_text()
+                    if tr[i].find('a').get_text() == 'Территория':
+                        terra = i
+                        self.terra = tr[terra + 1].find('td').find('span').get_text()
+                    if tr[i].find('a').get_text() == 'Валюта':
+                        usd = i
+                        self.usd = tr[usd].find('td').find('a')['title']
+                    if tr[i].find('a')['title'] == 'Валовой внутренний продукт':
+                        gdp = i
+                        self.gdp = tr[gdp + 1].find('td').find('span').get_text()
+                        self.gdp += '\n На душу населения:' + tr[gdp + 2].find('td').find('span').get_text()
+                    if tr[i].find('a')['title'] == 'Форма государственного правления':
+                        govern = i
+                        self.govern = tr[govern].find('td').find('a')['title']
+                    if tr[i].find('a')['title'] == 'Население':
+                        population = i + 1
+                        self.population = tr[population].find('td').get_text()
+                    if tr[i].find('a')['title'] == 'Столица':
+                        capital = i
+                        self.capital = tr[capital].find('td').find('a')['title']
+                    if tr[i].find('a')['title'] == 'Государственная религия':
+                        faith = i
+                        self.faith = tr[faith].find('td').find('a')['title']
+                    if tr[i].find('a')['title'] == 'Официальный язык':
+                        language = i
+                        self.language = tr[language].find('td').find('a')['title']
+                    if tr[i].find('a').get_text() == 'Интернет-домены':
+                        domen = i
+                        self.domen = tr[domen].find('td').find('a')['title']
+                    if tr[i].find('a')['title'] == 'Индекс человеческого развития':
+                        ichr = i
+                        self.ichr = tr[ichr].find('td').get_text()
+                        self.citizen = tr[ichr + 1].find('td').get_text()
+                    if tr[i].find('a').get_text() == 'Телефонный код':
+                        code = i
+                        self.code = tr[code].find('td').get_text()
+                        break
+                except:
+                    pass
+        else:
+            self.error = True
+
+#removing all wikipedia-ish brackets, and the references inside of them
+def wiki_destyle(string):
+    delete_from = 0
+    delete_to = 0
+    while ']' in string:
+        for i in range(len(string)):
+            if string[i] == '[':
+                delete_from = i
+            if string[i] == ']':
+                delete_to = i
+        a = string[:delete_from]
+        b = string[delete_to+1:]
+        string = a+b
+        delete_from = 0
+        delete_to = 0
+    return string
